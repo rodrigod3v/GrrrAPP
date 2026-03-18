@@ -205,6 +205,7 @@ def get_gym_attendance(*, session: Session = Depends(get_session), gym_id: int):
     for attendance, student, scheduled_class in results:
         attendance_list.append({
             "id": attendance.id,
+            "class_id": attendance.class_id,
             "student_name": student.name,
             "modality": scheduled_class.modality,
             "check_in_time": attendance.check_in_time,
@@ -237,6 +238,15 @@ def get_student_attendance_history(*, session: Session = Depends(get_session), s
             "target_date": attendance.target_date
         })
     return history_list
+    
+@app.delete("/api/attendance/{attendance_id}", tags=["Check-in"])
+def delete_attendance(*, session: Session = Depends(get_session), attendance_id: int):
+    attendance = session.get(Attendance, attendance_id)
+    if not attendance:
+        raise HTTPException(status_code=404, detail="Check-in não encontrado")
+    session.delete(attendance)
+    session.commit()
+    return {"message": "Check-in cancelado com sucesso"}
 
 # --- ANNOUNCEMENTS (NOTICES) ENDPOINTS ---
 

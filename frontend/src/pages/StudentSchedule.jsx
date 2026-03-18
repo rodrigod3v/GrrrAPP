@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
-import { Calendar as CalendarIcon, QrCode, Clock, CheckCircle2, History, Check } from 'lucide-react';
+import { Calendar as CalendarIcon, QrCode, Clock, CheckCircle2, History, Check, Trash2 } from 'lucide-react';
 
 function StudentSchedule() {
   const { session } = useContext(AuthContext);
@@ -44,6 +44,16 @@ function StudentSchedule() {
     }
   };
 
+  const handleCancelCheckIn = async (attendanceId) => {
+    if (!window.confirm("Deseja cancelar seu check-in?")) return;
+    try {
+      await api.delete(`/attendance/${attendanceId}`);
+      fetchAll();
+    } catch (err) {
+      alert("Erro ao cancelar check-in.");
+    }
+  };
+
   const getDayInfo = (offset = 0) => {
     const d = new Date();
     d.setDate(d.getDate() + offset);
@@ -64,35 +74,48 @@ function StudentSchedule() {
   const todayClasses = filterClasses(today.name);
   const tomorrowClasses = filterClasses(tomorrow.name);
 
-  // Helper to check if already checked in
-  const isCheckedIn = (classId, targetDate) => {
-    return history.some(h => h.class_id === classId || (h.modality === classes.find(c => c.id === classId)?.modality && h.target_date === targetDate));
-  };
+  // Filter "Hoje" to show only actionable (not confirmed, not finished) classes
+  const activeTodayClasses = todayClasses.filter(cls => {
+    const isConfirmed = history.some(h => (h.target_date === today.date || h.check_in_time?.startsWith(today.date)) && h.modality === cls.modality);
+    if (isConfirmed) return false;
+    
+    // Hide finished classes
+    const now = new Date();
+    const [eH, eM] = cls.end_time.split(':').map(Number);
+    const end = new Date(now);
+    end.setHours(eH, eM, 0);
+    if (now > end) return false;
+    
+    return true;
+  });
 
   return (
     <div className="animate-fade-in" style={{ paddingBottom: '3rem' }}>
       <header style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '1.5rem', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <CalendarIcon size={24} color="var(--primary)" /> Meus Check-ins
+          <CalendarIcon size={24} color="var(--primary)" /> Grade de Treinos
         </h1>
-        <p style={{ margin: 0, color: 'var(--text-muted)' }}>Agende e acompanhe seus treinos.</p>
+        <p style={{ margin: 0, color: 'var(--text-muted)' }}>Mantenha o foco e agende sua próxima aula.</p>
       </header>
 
       {/* TODAY SECTION */}
       <section style={{ marginBottom: '2.5rem' }}>
         <h3 style={{ fontSize: '0.8rem', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ width: '8px', height: '8px', background: 'var(--primary)', borderRadius: '50%' }}></div>
-          Hoje • {today.name}
+          Grade de Hoje • {today.name}
         </h3>
         
-        {loading ? <p>...</p> : todayClasses.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Nenhuma aula para hoje.</p>
+        {loading ? <p>...</p> : activeTodayClasses.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '24px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+             <p style={{ color: 'rgba(255,255,255,0.3)', margin: 0, fontSize: '0.9rem' }}>
+               {todayClasses.length > 0 ? 'Tudo pronto por hoje! Bons treinos! 🥋' : 'Nenhuma aula agendada para hoje.'}
+             </p>
+          </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {todayClasses.map(cls => {
-              const confirmed = history.some(h => h.target_date === today.date && h.modality === cls.modality);
-              return <ClassCard key={cls.id} cls={cls} targetDate={today.date} onCheckIn={handleCheckIn} checkingIn={checkingIn} confirmed={confirmed} />;
-            })}
+            {activeTodayClasses.map(cls => (
+              <ClassCard key={cls.id} cls={cls} targetDate={today.date} onCheckIn={handleCheckIn} checkingIn={checkingIn} confirmed={false} />
+            ))}
           </div>
         )}
       </section>
@@ -127,7 +150,7 @@ function StudentSchedule() {
           ) : (
             history.map((h, i) => (
               <div key={h.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem', borderBottom: i === history.length - 1 ? 'none' : '1px solid var(--border-light)' }}>
-                <div style={{ display: 'flex', items: 'center', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '36px', height: '36px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <CheckCircle2 size={18} color="#10b981" />
                   </div>
@@ -136,7 +159,15 @@ function StudentSchedule() {
                     <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>{h.target_date === today.date ? 'Hoje' : h.target_date === tomorrow.date ? 'Amanhã' : new Date(h.target_date).toLocaleDateString('pt-BR')}</p>
                   </div>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700, textTransform: 'uppercase' }}>Confirmado</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                   <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700, textTransform: 'uppercase' }}>Confirmado</div>
+                   <button 
+                     onClick={() => handleCancelCheckIn(h.id)}
+                     style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', color: '#ef4444', width: '28px', height: '28px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                   >
+                     <Trash2 size={14} />
+                   </button>
+                </div>
               </div>
             ))
           )}
