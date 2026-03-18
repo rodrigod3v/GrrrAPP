@@ -2,20 +2,36 @@ from datetime import date, datetime, time
 from typing import Optional
 from sqlmodel import Field, SQLModel
 
+# -- MÓDULO DE ACADEMIAS (MULTI-TENANT) --
+class GymBase(SQLModel):
+    name: str = Field(index=True)
+    admin_email: str = Field(unique=True, index=True)
+    admin_username: str = Field(unique=True, index=True)
+
+class Gym(GymBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    admin_password: str # Senha em texto pleno para o protótipo local rápido
+
+class GymCreate(GymBase):
+    admin_password: str
+
 # -- MÓDULO DE ALUNOS --
 class StudentBase(SQLModel):
     name: str = Field(index=True)
-    email: str = Field(unique=True, index=True)
+    email: Optional[str] = None
+    username: str = Field(unique=True, index=True) # Used for Student Login
     photo_url: Optional[str] = None
     belt: str = Field(default="Branca")
     degree: int = Field(default=0)
     is_active: bool = Field(default=True)
+    gym_id: int = Field(foreign_key="gym.id", index=True)
 
 class Student(StudentBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    password: str = Field(default="changeme") # Default password
 
 class StudentCreate(StudentBase):
-    pass
+    password: Optional[str] = "changeme"
 
 class StudentUpdate(SQLModel):
     name: Optional[str] = None
@@ -32,6 +48,7 @@ class ScheduledClassBase(SQLModel):
     start_time: time
     end_time: time
     capacity: int = Field(default=30)
+    gym_id: int = Field(foreign_key="gym.id", index=True)
 
 class ScheduledClass(ScheduledClassBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -44,6 +61,7 @@ class Attendance(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     student_id: int = Field(foreign_key="student.id")
     class_id: int = Field(foreign_key="scheduledclass.id")
+    gym_id: int = Field(foreign_key="gym.id", index=True)
     check_in_time: datetime = Field(default_factory=datetime.utcnow)
     qr_code_token: str
 
@@ -51,6 +69,7 @@ class Attendance(SQLModel, table=True):
 class Payment(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     student_id: int = Field(foreign_key="student.id")
+    gym_id: int = Field(foreign_key="gym.id", index=True)
     amount: float
     due_date: date
     status: str = Field(default="Pending") # Pending, Paid, Overdue
