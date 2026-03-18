@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Users, Calendar, DollarSign, LogOut, CheckSquare } from 'lucide-react';
+import { Home, Users, Calendar, DollarSign, LogOut, CheckSquare, Bell } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 
 const Sidebar = () => {
@@ -12,6 +12,7 @@ const Sidebar = () => {
     { name: 'Grade de Aulas', icon: Calendar, path: '/admin/schedule' },
     { name: 'Financeiro', icon: DollarSign, path: '/admin/financial' },
     { name: 'Recepção / Check-in', icon: CheckSquare, path: '/admin/reception' },
+    { name: 'Avisos / Mural', icon: Bell, path: '/admin/notices' },
   ];
 
   return (

@@ -6,7 +6,7 @@ function Login() {
   const { loginAdmin, loginStudent } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [role, setRole] = useState('admin'); 
+  const [role, setRole] = useState('admin');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -17,12 +17,12 @@ function Login() {
     if (username.trim() !== '' && password.trim() !== '') {
       setIsLoading(true);
       setErrorMsg('');
-      
+
       let res;
       if (role === 'admin') {
-         res = await loginAdmin(username, password);
+        res = await loginAdmin(username, password);
       } else {
-         res = await loginStudent(username, password);
+        res = await loginStudent(username, password);
       }
 
       setIsLoading(false);
@@ -41,7 +41,7 @@ function Login() {
   return (
     <div className="app-container" style={{ justifyContent: 'center', alignItems: 'center' }}>
       <div className="glass-pane animate-fade-in" style={{ maxWidth: '420px', width: '100%', textAlign: 'center', padding: '3rem 2rem' }}>
-        
+
         <div style={{ marginBottom: '2rem' }}>
           <div style={{ width: '64px', height: '64px', background: 'linear-gradient(135deg, var(--primary), #ef4444)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', boxShadow: '0 8px 24px rgba(245, 158, 11, 0.4)' }}>
             <span style={{ fontSize: '2rem', fontWeight: 800 }}>G</span>
@@ -66,7 +66,7 @@ function Login() {
             <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'block' }}>{role === 'admin' ? 'Usuário da Academia' : 'ID do Aluno'}</label>
             <input type="text" placeholder={role === 'admin' ? "Ex: admin_gracie" : "Ex: joao_silva"} value={username} onChange={(e) => setUsername(e.target.value)} required style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-light)', color: '#fff', fontSize: '1rem', outline: 'none' }} />
           </div>
-          
+
           <div style={{ textAlign: 'left', marginBottom: '1rem' }}>
             <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
               <span>Senha</span>
@@ -82,9 +82,9 @@ function Login() {
 
         {role === 'admin' && (
           <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Sua academia ainda não utiliza o GrrrAPP SaaS?</p>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Sua academia ainda não utiliza o GrrrAPP ?</p>
             <button onClick={() => navigate('/register')} type="button" style={{ width: '100%', padding: '0.75rem', background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>
-              🚀 Cadastrar Minha Academia
+              Cadastre-se
             </button>
           </div>
         )}

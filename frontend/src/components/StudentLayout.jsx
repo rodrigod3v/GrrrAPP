@@ -1,8 +1,48 @@
-import React from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
-import { Home, Calendar, CreditCard, Bell } from 'lucide-react';
+import React, { useState, useEffect, useContext } from 'react';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Home, Calendar, CreditCard, Bell, LogOut } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
+import api from '../services/api';
 
 const StudentLayout = () => {
+  const { logout, session } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    // If the user is on the notices page, immediately clear the badge locally
+    if (location.pathname === '/student/notices') {
+      setHasUnread(false);
+    }
+
+    const checkUnread = async () => {
+      try {
+        if (!session?.gym_id) return;
+        const res = await api.get(`/notices/gym/${session.gym_id}`);
+        const notices = res.data;
+        
+        if (notices.length > 0) {
+          const lastSeenId = localStorage.getItem('lastSeenNoticeId');
+          // Only show as unread if NOT on the notices page and ID is different
+          if (lastSeenId !== String(notices[0].id) && location.pathname !== '/student/notices') {
+            setHasUnread(true);
+          } else if (location.pathname === '/student/notices') {
+            // Ensure we update the lastSeenId immediately if on the page
+            localStorage.setItem('lastSeenNoticeId', String(notices[0].id));
+            setHasUnread(false);
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao verificar avisos:", err);
+      }
+    };
+    
+    checkUnread();
+    const interval = setInterval(checkUnread, 60000); // Poll every minute
+    return () => clearInterval(interval);
+  }, [session, location.pathname]);
+
   const navItems = [
     { name: 'Início', icon: Home, path: '/student' },
     { name: 'Check-in', icon: Calendar, path: '/student/schedule' },
@@ -20,8 +60,19 @@ const StudentLayout = () => {
           </div>
           <h2 style={{ fontSize: '1.2rem', margin: 0 }}>GrrrAPP</h2>
         </div>
-        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ fontSize: '1rem' }}>🥋</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button 
+            onClick={() => navigate('/student/notices')}
+            style={{ position: 'relative', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#fff', width: '38px', height: '38px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+          >
+            <Bell size={20} />
+            {hasUnread && (
+              <span style={{ position: 'absolute', top: '8px', right: '8px', width: '10px', height: '10px', background: '#ef4444', border: '2px solid #0f172a', borderRadius: '50%' }}></span>
+            )}
+          </button>
+          <button onClick={logout} style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', color: '#ef4444', width: '38px', height: '38px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <LogOut size={20} />
+          </button>
         </div>
       </header>
 

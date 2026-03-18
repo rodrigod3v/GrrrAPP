@@ -4,7 +4,15 @@ import { AuthProvider, AuthContext } from './context/AuthContext';
 import Login from './pages/Login';
 import RegisterGym from './pages/RegisterGym';
 import AdminDashboard from './pages/AdminDashboard';
+import ManageStudents from './pages/ManageStudents';
+import ManageSchedule from './pages/ManageSchedule';
+import ManageFinancial from './pages/ManageFinancial';
+import ManageReception from './pages/ManageReception';
+import ManageNotices from './pages/ManageNotices';
 import StudentDashboard from './pages/StudentDashboard';
+import StudentSchedule from './pages/StudentSchedule';
+import StudentFinancial from './pages/StudentFinancial';
+import StudentNotices from './pages/StudentNotices';
 import AdminLayout from './components/AdminLayout';
 import StudentLayout from './components/StudentLayout';
 import './index.css';
@@ -45,6 +53,12 @@ function AppRoutes() {
           }
         >
           <Route index element={<AdminDashboard />} />
+          <Route path="students" element={<ManageStudents />} />
+          <Route path="students/new" element={<ManageStudents />} /> 
+          <Route path="schedule" element={<ManageSchedule />} />
+          <Route path="financial" element={<ManageFinancial />} />
+          <Route path="reception" element={<ManageReception />} />
+          <Route path="notices" element={<ManageNotices />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
         
@@ -57,6 +71,9 @@ function AppRoutes() {
           }
         >
           <Route index element={<StudentDashboard />} />
+          <Route path="schedule" element={<StudentSchedule />} />
+          <Route path="financial" element={<StudentFinancial />} />
+          <Route path="notices" element={<StudentNotices />} />
           <Route path="*" element={<Navigate to="/student" replace />} />
         </Route>
         
