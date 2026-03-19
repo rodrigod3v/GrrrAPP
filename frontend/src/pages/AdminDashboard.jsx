@@ -25,9 +25,9 @@ function MetricCard({ title, value, icon: Icon, trend }) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div style={{ display: 'flex', justifyItems: 'center', justifyContent: 'space-between', alignItems: 'center' }}>
-        <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-muted)', margin: 0 }}>{title}</p>
-        <div style={{ padding: '8px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px', color: 'var(--primary)' }}>
-          <Icon size={20} />
+        <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-muted)', margin: 0, letterSpacing: '0.02em' }}>{title}</p>
+        <div style={{ padding: '10px', background: 'rgba(255, 59, 48, 0.1)', borderRadius: '12px', color: 'var(--primary)', boxShadow: '0 0 15px rgba(255, 59, 48, 0.05)' }}>
+          <Icon size={22} />
         </div>
       </div>
       <div>
@@ -77,13 +77,13 @@ function AdminDashboard() {
 
   return (
     <div className="animate-fade-in">
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
         <div>
-          <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem' }}>Dashboard Geral</h1>
-          <p style={{ margin: 0, color: 'var(--text-muted)' }}>Bem-vindo de volta, <strong>{session?.name || 'Mestre'}</strong>. Resumo da sua academia.</p>
+          <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '2.5rem' }}>Visão Geral</h1>
+          <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '1.1rem' }}>Bem-vindo de volta, <strong style={{ color: '#fff' }}>{session?.name || 'Mestre'}</strong>. Sua academia em números.</p>
         </div>
-        <button className="btn-primary" style={{ height: 'fit-content' }} onClick={() => navigate('/admin/students/new')}>
-          <Plus size={18} /> Novo Aluno
+        <button className="btn-primary" style={{ height: 'fit-content', padding: '0.75rem 1.5rem' }} onClick={() => navigate('/admin/students/new')}>
+          <Plus size={20} /> Adicionar Aluno
         </button>
       </header>
 

@@ -17,32 +17,34 @@ const Sidebar = () => {
 
   return (
     <aside style={{ width: '260px', background: 'var(--bg-card)', borderRight: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', height: '100vh', padding: '1.5rem', backdropFilter: 'blur(12px)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2.5rem' }}>
-        <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg, var(--primary), #ef4444)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.4)' }}>
-          <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>G</span>
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '3rem', paddingLeft: '0.5rem' }}>
+        <img src="/src/assets/logo.png" alt="Logo" style={{ width: '42px', height: '42px', filter: 'drop-shadow(0 0 10px var(--primary-glow))' }} />
         <div>
-          <h2 style={{ fontSize: '1.25rem', margin: 0 }}>GrrrAPP</h2>
-          <span style={{ fontSize: '0.7rem', color: 'var(--primary)', letterSpacing: '1px', textTransform: 'uppercase' }}>Gestão</span>
+          <h2 style={{ fontSize: '1.35rem', margin: 0, fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>GrrrAPP</h2>
+          <span style={{ fontSize: '0.65rem', color: 'var(--primary)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700 }}>Management</span>
         </div>
       </div>
 
-      <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
         {menuItems.map((item) => (
           <NavLink 
             key={item.name} 
             to={item.path} 
             end={item.path === '/admin'}
             style={({ isActive }) => ({
-              display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.85rem 1rem', borderRadius: 'var(--radius-md)',
+              display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.9rem 1.1rem', borderRadius: 'var(--radius-md)',
               textDecoration: 'none', color: isActive ? '#fff' : 'var(--text-muted)',
-              background: isActive ? 'linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, transparent 100%)' : 'transparent',
+              background: isActive ? 'linear-gradient(90deg, rgba(255, 59, 48, 0.12) 0%, transparent 100%)' : 'transparent',
               borderLeft: isActive ? '3px solid var(--primary)' : '3px solid transparent',
-              fontWeight: isActive ? 600 : 500, transition: 'all 0.2s'
+              fontWeight: isActive ? 700 : 500, transition: 'var(--transition)'
             })}
           >
-            <item.icon size={20} color="currentColor" />
-            {item.name}
+            {({ isActive }) => (
+              <>
+                <item.icon size={20} color={isActive ? 'var(--primary)' : 'currentColor'} />
+                {item.name}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>

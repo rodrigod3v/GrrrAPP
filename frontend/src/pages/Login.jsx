@@ -39,55 +39,75 @@ function Login() {
   };
 
   return (
-    <div className="app-container" style={{ justifyContent: 'center', alignItems: 'center' }}>
-      <div className="glass-pane animate-fade-in" style={{ maxWidth: '420px', width: '100%', textAlign: 'center', padding: '3rem 2rem' }}>
+    <div className="app-container" style={{ justifyContent: 'center', alignItems: 'center', background: 'radial-gradient(circle at top right, rgba(255, 59, 48, 0.08), transparent)' }}>
+      <div className="glass-pane animate-fade-in" style={{ maxWidth: '420px', width: '100%', textAlign: 'center', padding: '3.5rem 2.5rem' }}>
 
-        <div style={{ marginBottom: '2rem' }}>
-          <div style={{ width: '64px', height: '64px', background: 'linear-gradient(135deg, var(--primary), #ef4444)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', boxShadow: '0 8px 24px rgba(245, 158, 11, 0.4)' }}>
-            <span style={{ fontSize: '2rem', fontWeight: 800 }}>G</span>
+        <div style={{ marginBottom: '2.5rem' }}>
+          <img src="/src/assets/logo.png" alt="GrrrAPP Icon" style={{ width: '120px', height: 'auto', marginBottom: '1rem', filter: 'drop-shadow(0 0 20px var(--primary-glow))' }} />
+          <h1 style={{ fontSize: '2.8rem', color: '#fff', marginBottom: '0.25rem' }}>GrrrAPP</h1>
+          <p style={{ fontSize: '1rem', marginTop: '0.5rem' }}>Onde a raiva vira resultado. Entre e treine.</p>
+        </div>
+
+        <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', padding: '0.4rem', borderRadius: 'var(--radius-md)', marginBottom: '2rem', border: '1px solid var(--border-light)' }}>
+          <button type="button" onClick={() => setRole('admin')} style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: 'none', cursor: 'pointer', background: role === 'admin' ? 'var(--primary)' : 'transparent', color: role === 'admin' ? '#fff' : 'var(--text-muted)', fontWeight: 700, transition: 'var(--transition)' }}>
+            Academia
+          </button>
+          <button type="button" onClick={() => setRole('student')} style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: 'none', cursor: 'pointer', background: role === 'student' ? 'var(--primary)' : 'transparent', color: role === 'student' ? '#fff' : 'var(--text-muted)', fontWeight: 700, transition: 'var(--transition)' }}>
+            Aluno
+          </button>
+        </div>
+
+        {errorMsg && (
+          <div style={{ background: 'rgba(255, 59, 48, 0.15)', border: '1px solid var(--primary)', color: '#ff8a80', padding: '0.85rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', fontSize: '0.9rem', animation: 'fadeIn 0.4s ease' }}>
+            {errorMsg}
           </div>
-          <h2>GrrrAPP</h2>
-          <p style={{ fontSize: '0.9rem', marginTop: '0.5rem', color: 'var(--text-muted)' }}>Escolha seu portal e entre na plataforma.</p>
-        </div>
+        )}
 
-        <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', padding: '0.35rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <button type="button" onClick={() => setRole('admin')} style={{ flex: 1, padding: '0.65rem', borderRadius: '8px', border: 'none', cursor: 'pointer', background: role === 'admin' ? 'var(--primary)' : 'transparent', color: role === 'admin' ? '#fff' : 'var(--text-muted)', fontWeight: role === 'admin' ? 700 : 500, transition: 'all 0.3s' }}>
-            Portal Academia
-          </button>
-          <button type="button" onClick={() => setRole('student')} style={{ flex: 1, padding: '0.65rem', borderRadius: '8px', border: 'none', cursor: 'pointer', background: role === 'student' ? '#10b981' : 'transparent', color: role === 'student' ? '#fff' : 'var(--text-muted)', fontWeight: role === 'student' ? 700 : 500, transition: 'all 0.3s' }}>
-            Portal Aluno
-          </button>
-        </div>
-
-        {errorMsg && <div style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#fca5a5', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem' }}>{errorMsg}</div>}
-
-        <form onSubmit={submitLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <form onSubmit={submitLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div style={{ textAlign: 'left' }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'block' }}>{role === 'admin' ? 'Usuário da Academia' : 'ID do Aluno'}</label>
-            <input type="text" placeholder={role === 'admin' ? "Ex: admin_gracie" : "Ex: joao_silva"} value={username} onChange={(e) => setUsername(e.target.value)} required style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-light)', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.6rem', display: 'block' }}>
+              {role === 'admin' ? 'Usuário Administrativo' : 'ID do Aluno'}
+            </label>
+            <input 
+              type="text" 
+              placeholder={role === 'admin' ? "admin_gracie" : "000123"} 
+              value={username} 
+              onChange={(e) => setUsername(e.target.value)} 
+              required 
+              style={{ width: '100%', padding: '0.85rem 1.1rem', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-light)', color: '#fff', fontSize: '1rem', outline: 'none', transition: 'var(--transition)' }}
+              onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--border-light)'}
+            />
           </div>
 
-          <div style={{ textAlign: 'left', marginBottom: '1rem' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.6rem', display: 'flex', justifyContent: 'space-between' }}>
               <span>Senha</span>
-              <a href="#" style={{ color: role === 'admin' ? 'var(--primary)' : '#10b981', textDecoration: 'none', fontWeight: 400 }}>Esqueceu?</a>
+              <a href="#" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>Esqueceu?</a>
             </div>
-            <input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-light)', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+            <input 
+              type="password" 
+              placeholder="••••••••" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              required 
+              style={{ width: '100%', padding: '0.85rem 1.1rem', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-light)', color: '#fff', fontSize: '1rem', outline: 'none', transition: 'var(--transition)' }}
+              onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--border-light)'}
+            />
           </div>
 
-          <button type="submit" disabled={isLoading} style={{ width: '100%', justifyContent: 'center', background: role === 'admin' ? 'var(--primary)' : '#10b981', color: '#fff', border: 'none', padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: 600, borderRadius: 'var(--radius-md)', cursor: 'pointer', opacity: isLoading ? 0.7 : 1 }}>
-            {isLoading ? 'Conectando...' : (role === 'admin' ? 'Acessar Gestão' : 'Ver Meu Treino')}
+          <button type="submit" disabled={isLoading} className="btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>
+            {isLoading ? 'Conectando...' : (role === 'admin' ? 'Entrar no Sistema' : 'Acessar Treino')}
           </button>
         </form>
 
-        {role === 'admin' && (
-          <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Sua academia ainda não utiliza o GrrrAPP ?</p>
-            <button onClick={() => navigate('/register')} type="button" style={{ width: '100%', padding: '0.75rem', background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>
-              Cadastre-se
-            </button>
-          </div>
-        )}
+        <div style={{ marginTop: '2.5rem', borderTop: '1px solid var(--border-light)', paddingTop: '1.5rem' }}>
+          <p style={{ fontSize: '0.9rem', marginBottom: '1.25rem' }}>Ainda não tem o GrrrAPP ?</p>
+          <button onClick={() => navigate('/register')} type="button" style={{ width: '100%', padding: '0.85rem', background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: 700, transition: 'var(--transition)' }} onMouseOver={(e) => e.target.style.background = 'rgba(255, 59, 48, 0.05)'} onMouseOut={(e) => e.target.style.background = 'transparent'}>
+            Quero Cadastrar Minha Academia
+          </button>
+        </div>
       </div>
     </div>
   );
