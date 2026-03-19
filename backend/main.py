@@ -13,6 +13,7 @@ from backend.models import (
     ScheduledClass, ScheduledClassCreate, ScheduledClassBase,
     Attendance, Payment, Notice
 )
+from backend.auth import get_password_hash, verify_password, create_access_token, get_current_user
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -51,7 +52,12 @@ def register_gym(*, session: Session = Depends(get_session), gym: GymCreate):
     existing = session.exec(select(Gym).where(Gym.admin_username == gym.admin_username)).first()
     if existing:
          raise HTTPException(status_code=400, detail="Usuário admin já existe")
-    db_gym = Gym.model_validate(gym)
+    
+    # Secure Password
+    gym_data = gym.model_dump()
+    gym_data["admin_password"] = get_password_hash(gym.admin_password)
+    
+    db_gym = Gym(**gym_data)
     session.add(db_gym)
     session.commit()
     session.refresh(db_gym)
@@ -60,22 +66,29 @@ def register_gym(*, session: Session = Depends(get_session), gym: GymCreate):
 @app.post("/api/auth/login", tags=["Auth"])
 def login(*, session: Session = Depends(get_session), req: LoginRequest):
     if req.role == 'admin':
-        gym = session.exec(select(Gym).where(Gym.admin_username == req.username)).first()
-        if not gym or gym.admin_password != req.password:
+        gym = session.exec(select(Gym).where(Gym.admin_username == req.username, Gym.is_deleted == False)).first()
+        if not gym or not verify_password(req.password, gym.admin_password):
             raise HTTPException(status_code=401, detail="Credenciais inválidas")
-        return {"message": "Login concluído", "role": "admin", "gym_id": gym.id, "name": gym.name}
+        
+        token = create_access_token(data={"sub": str(gym.id), "role": "admin"})
+        return {"access_token": token, "token_type": "bearer", "role": "admin", "gym_id": gym.id, "name": gym.name}
     else:
-        student = session.exec(select(Student).where(Student.username == req.username)).first()
-        if not student or student.password != req.password:
+        student = session.exec(select(Student).where(Student.username == req.username, Student.is_deleted == False)).first()
+        if not student or not verify_password(req.password, student.password):
             raise HTTPException(status_code=401, detail="Credenciais inválidas")
-        return {"message": "Login concluído", "role": "student", "student_id": student.id, "gym_id": student.gym_id, "name": student.name}
+        
+        token = create_access_token(data={"sub": str(student.id), "role": "student"})
+        return {"access_token": token, "token_type": "bearer", "role": "student", "student_id": student.id, "gym_id": student.gym_id, "name": student.name}
 
 # --- ALUNOS ENDPOINTS ---
 
 @app.post("/api/students/", response_model=Student, tags=["Students"])
 def create_student(*, session: Session = Depends(get_session), student: StudentCreate):
-    # Deve incluir o gym_id pertencente à academia
-    db_student = Student.model_validate(student)
+    # Hash password
+    student_data = student.model_dump()
+    student_data["password"] = get_password_hash(student.password)
+    
+    db_student = Student(**student_data)
     session.add(db_student)
     session.commit()
     session.refresh(db_student)
@@ -83,8 +96,18 @@ def create_student(*, session: Session = Depends(get_session), student: StudentC
 
 @app.get("/api/students/gym/{gym_id}", response_model=List[Student], tags=["Students"])
 def read_students(*, session: Session = Depends(get_session), gym_id: int):
-    students = session.exec(select(Student).where(Student.gym_id == gym_id)).all()
+    students = session.exec(select(Student).where(Student.gym_id == gym_id, Student.is_deleted == False)).all()
     return students
+
+@app.delete("/api/students/{student_id}", tags=["Students"])
+def delete_student(*, session: Session = Depends(get_session), student_id: int):
+    student = session.get(Student, student_id)
+    if not student or student.is_deleted:
+        raise HTTPException(status_code=404, detail="Aluno não encontrado")
+    student.is_deleted = True
+    session.add(student)
+    session.commit()
+    return {"message": "Aluno removido com sucesso (Soft Delete)"}
 
 # --- GRRR APP BACKEND --- 
 
@@ -125,17 +148,18 @@ def create_classes_batch(*, session: Session = Depends(get_session), batch: Batc
 
 @app.get("/api/classes/gym/{gym_id}", response_model=List[ScheduledClass], tags=["Schedule"])
 def read_classes(*, session: Session = Depends(get_session), gym_id: int):
-    classes = session.exec(select(ScheduledClass).where(ScheduledClass.gym_id == gym_id)).all()
+    classes = session.exec(select(ScheduledClass).where(ScheduledClass.gym_id == gym_id, ScheduledClass.is_deleted == False)).all()
     return classes
 
 @app.delete("/api/classes/{class_id}", tags=["Schedule"])
 def delete_class(*, session: Session = Depends(get_session), class_id: int):
     db_class = session.get(ScheduledClass, class_id)
-    if not db_class:
+    if not db_class or db_class.is_deleted:
         raise HTTPException(status_code=404, detail="Class not found")
-    session.delete(db_class)
+    db_class.is_deleted = True
+    session.add(db_class)
     session.commit()
-    return {"message": "Aula removida com sucesso"}
+    return {"message": "Aula removida com sucesso (Soft Delete)"}
 
 # --- CHECK-IN & ATTENDANCE ENDPOINTS ---
 
@@ -209,6 +233,7 @@ def get_gym_attendance(*, session: Session = Depends(get_session), gym_id: int):
             "student_name": student.name,
             "modality": scheduled_class.modality,
             "check_in_time": attendance.check_in_time,
+            "target_date": attendance.target_date,
             "student_belt": student.belt
         })
     return attendance_list
@@ -233,6 +258,7 @@ def get_student_attendance_history(*, session: Session = Depends(get_session), s
     for attendance, scheduled_class in results:
         history_list.append({
             "id": attendance.id,
+            "class_id": attendance.class_id,
             "modality": scheduled_class.modality,
             "check_in_time": attendance.check_in_time,
             "target_date": attendance.target_date
@@ -247,6 +273,27 @@ def delete_attendance(*, session: Session = Depends(get_session), attendance_id:
     session.delete(attendance)
     session.commit()
     return {"message": "Check-in cancelado com sucesso"}
+
+@app.get("/api/students/{student_id}/stats", tags=["Students"])
+def get_student_stats(*, session: Session = Depends(get_session), student_id: int):
+    student = session.get(Student, student_id)
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+        
+    attendances = session.exec(select(Attendance).where(Attendance.student_id == student_id)).all()
+    total_treinos = len(attendances)
+    
+    # Simple Grrr Score: 10 points per check-in + belt bonus
+    # This is simulated for the prototype
+    grrr_score = (total_treinos * 10)
+    
+    return {
+        "id": student_id,
+        "total_treinos": total_treinos,
+        "grrr_score": grrr_score,
+        "level": (total_treinos // 10) + 1,
+        "status": "Elite" if total_treinos > 50 else "Guerreiro" if total_treinos > 10 else "Novato"
+    }
 
 # --- ANNOUNCEMENTS (NOTICES) ENDPOINTS ---
 

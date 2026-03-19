@@ -27,10 +27,12 @@ function ManageReception() {
       setStudents(resStudents.data.filter(s => s.is_active));
       setClasses(resClasses.data);
       
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayLocal = new Date();
+      const todayStr = `${todayLocal.getFullYear()}-${String(todayLocal.getMonth() + 1).padStart(2, '0')}-${String(todayLocal.getDate()).padStart(2, '0')}`;
+      
       const todayAttendance = resAttendance.data.filter(att => {
-        if (!att.check_in_time && !att.target_date) return false;
-        const attDate = att.target_date || (att.check_in_time ? new Date(att.check_in_time).toISOString().split('T')[0] : '');
+        // If target_date is provided, use it. Otherwise fallback to check_in_time's date.
+        const attDate = att.target_date || (att.check_in_time ? att.check_in_time.split('T')[0] : '');
         return attDate === todayStr;
       }).sort((a,b) => (b.check_in_time ? new Date(b.check_in_time) : 0) - (a.check_in_time ? new Date(a.check_in_time) : 0));
       

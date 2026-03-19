@@ -59,33 +59,31 @@ O sistema possui 4 Módulos principais mapeados no arquivo `models.py`:
 
 ---
 
-## 🚀 Como Executar o Backend Localmente
+## 🚀 Como Executar o Projeto Localmente (Dev/Test)
 
-*🚨 **Atenção:** Se possível, utilize o Python 3.10, 3.11 ou 3.12 (A versão 3.14 atual do MacOS pode entrar em conflitos de compilação com algumas bibliotecas).*
+O GrrrAPP possui scripts automatizados para subir tanto o Backend quanto o Frontend simultaneamente.
 
-1. Navegue até a pasta do projeto:
-   ```bash
-   cd /Users/rodrigoorlandoqa/Documents/GrrrAPP
+### Windows (Nativo)
+
+Se você estiver usando o Prompt de Comando ou PowerShell:
+
+1. Abra o PowerShell na raiz do projeto.
+2. Execute o script:
+   ```powershell
+   .\run_dev.ps1
    ```
+   *Ou simplesmente dê um duplo-clique no arquivo `run_dev.bat`.*
 
-2. Crie e ative o Ambiente Virtual:
+### Linux ou MacOS (ou Git Bash no Windows)
+
+1. Garanta que o script tenha permissão de execução:
    ```bash
-   python3 -m venv venv
-   source venv/bin/activate
+   chmod +x run_dev.sh
    ```
-
-3. Instale as dependências:
+2. Execute o script:
    ```bash
-   pip install -r backend/requirements.txt
+   ./run_dev.sh
    ```
-
-4. Execute o Servidor Backend:
-   ```bash
-   uvicorn backend.main:app --reload
-   ```
-
-5. O Banco SQLite (`grrrapp.db`) será criado automaticamente! Acesse o Swagger interativo local em:
-   👉 **http://127.0.0.1:8000/docs**
 
 ---
 

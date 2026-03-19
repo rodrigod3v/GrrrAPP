@@ -42,6 +42,19 @@ function MetricCard({ title, value, icon: Icon, trend }) {
   );
 }
 
+function MetricSkeleton() {
+  return (
+    <div className="animate-pulse-slow" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="skeleton" style={{ width: '80px', height: '12px' }}></div>
+        <div className="skeleton" style={{ width: '42px', height: '42px', borderRadius: '12px' }}></div>
+      </div>
+      <div className="skeleton" style={{ width: '60px', height: '24px', margin: '0.5rem 0' }}></div>
+      <div className="skeleton" style={{ width: '100px', height: '14px', borderRadius: '12px' }}></div>
+    </div>
+  );
+}
+
 function AdminDashboard() {
   const { session } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -75,6 +88,12 @@ function AdminDashboard() {
   // A simple fake revenue metric based on active students
   const expectedRevenue = activeStudents * 150; 
 
+  const todayStr = new Date().toLocaleDateString('pt-BR', { weekday: 'long' });
+  const todayClasses = classes.filter(c => 
+    c.day_of_week.toLowerCase() === todayStr.toLowerCase() || 
+    c.day_of_week.toLowerCase().startsWith(todayStr.split('-')[0].toLowerCase())
+  ).sort((a,b) => a.start_time.localeCompare(b.start_time));
+
   return (
     <div className="animate-fade-in">
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
@@ -88,13 +107,24 @@ function AdminDashboard() {
       </header>
 
       {loading ? (
-        <div style={{ color: 'var(--text-muted)' }}>Carregando dados da API...</div>
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+            <MetricSkeleton />
+            <MetricSkeleton />
+            <MetricSkeleton />
+            <MetricSkeleton />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+            <div className="skeleton" style={{ height: '300px', borderRadius: 'var(--radius-lg)' }}></div>
+            <div className="skeleton" style={{ height: '300px', borderRadius: 'var(--radius-lg)' }}></div>
+          </div>
+        </>
       ) : (
         <>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
             <MetricCard title="Alunos Ativos" value={activeStudents} icon={Users} trend={activeStudents > 0 ? "+ novos" : ""} />
             <MetricCard title="Receita (Base R$150/mês)" value={`R$ ${expectedRevenue},00`} icon={DollarSign} trend="+ estável" />
-            <MetricCard title="Aulas (Grade Total)" value={classes.length} icon={Calendar} />
+            <MetricCard title="Aulas de Hoje" value={todayClasses.length} icon={Calendar} />
             <MetricCard title="Taxa de Frequência" value={activeStudents > 0 ? "85%" : "0%"} icon={TrendingUp} trend="+5% mês" />
           </div>
 
@@ -138,22 +168,22 @@ function AdminDashboard() {
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-lg)', padding: '2rem', backdropFilter: 'blur(12px)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <h2 style={{ fontSize: '1.25rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Calendar size={20} color="var(--primary)" /> Grade de Aulas
+                  <Calendar size={20} color="var(--primary)" /> Hoje na Academia
                 </h2>
-                <button onClick={() => navigate('/admin/schedule')} style={{ background: 'transparent', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}>Cofigurar</button>
+                <button onClick={() => navigate('/admin/schedule')} style={{ background: 'transparent', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}>Grade Total</button>
               </div>
 
-              {classes.length === 0 ? (
+              {todayClasses.length === 0 ? (
                 <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '3rem 0', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 'var(--radius-md)' }}>
-                  Nenhuma aula configurada na grade.
+                  Sem aulas agendadas para hoje.
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {classes.slice(0, 4).map(cls => (
+                  {todayClasses.map(cls => (
                     <div key={cls.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
                       <div>
-                        <p style={{ margin: '0 0 0.25rem 0', fontWeight: 600, color: '#fff' }}>{cls.modality} - {cls.day_of_week}</p>
-                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>{cls.start_time} às {cls.end_time}</p>
+                        <p style={{ margin: '0 0 0.25rem 0', fontWeight: 600, color: '#fff' }}>{cls.modality}</p>
+                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>{cls.start_time.slice(0,5)} às {cls.end_time.slice(0,5)}</p>
                       </div>
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                         Vagas: {cls.capacity}

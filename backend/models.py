@@ -10,7 +10,10 @@ class GymBase(SQLModel):
 
 class Gym(GymBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    admin_password: str # Senha em texto pleno para o protótipo local rápido
+    admin_password: str
+    is_deleted: bool = Field(default=False)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 class GymCreate(GymBase):
     admin_password: str
@@ -29,7 +32,10 @@ class StudentBase(SQLModel):
 
 class Student(StudentBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    password: str = Field(default="changeme") # Default password
+    password: str = Field(default="changeme")
+    is_deleted: bool = Field(default=False)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 class StudentCreate(StudentBase):
     password: Optional[str] = "changeme"
@@ -53,6 +59,8 @@ class ScheduledClassBase(SQLModel):
 
 class ScheduledClass(ScheduledClassBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    is_deleted: bool = Field(default=False)
 
 class ScheduledClassCreate(ScheduledClassBase):
     pass

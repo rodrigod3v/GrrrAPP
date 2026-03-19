@@ -13,6 +13,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import StudentSchedule from './pages/StudentSchedule';
 import StudentFinancial from './pages/StudentFinancial';
 import StudentNotices from './pages/StudentNotices';
+import StudentProfile from './pages/StudentProfile';
 import AdminLayout from './components/AdminLayout';
 import StudentLayout from './components/StudentLayout';
 import './index.css';
@@ -54,6 +55,7 @@ function AppRoutes() {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="students" element={<ManageStudents />} />
+          <Route path="students/:id" element={<StudentProfile />} />
           <Route path="students/new" element={<ManageStudents />} /> 
           <Route path="schedule" element={<ManageSchedule />} />
           <Route path="financial" element={<ManageFinancial />} />

@@ -19,8 +19,10 @@ export const AuthProvider = ({ children }) => {
   const loginAdmin = async (username, password) => {
     try {
       const response = await api.post('/auth/login', { role: 'admin', username, password });
-      const userSession = { ...response.data, role: 'admin' };
+      const { access_token, ...userData } = response.data;
+      const userSession = { ...userData, role: 'admin' };
       setSession(userSession);
+      localStorage.setItem('token', access_token);
       localStorage.setItem('@GrrrAPP:session', JSON.stringify(userSession));
       return { success: true };
     } catch (err) {
@@ -31,8 +33,10 @@ export const AuthProvider = ({ children }) => {
   const loginStudent = async (studentId, password) => {
     try {
       const response = await api.post('/auth/login', { role: 'student', username: studentId, password });
-      const userSession = { ...response.data, role: 'student' };
+      const { access_token, ...userData } = response.data;
+      const userSession = { ...userData, role: 'student' };
       setSession(userSession);
+      localStorage.setItem('token', access_token);
       localStorage.setItem('@GrrrAPP:session', JSON.stringify(userSession));
       return { success: true };
     } catch (err) {
@@ -42,6 +46,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setSession(null);
+    localStorage.removeItem('token');
     localStorage.removeItem('@GrrrAPP:session');
   };
 

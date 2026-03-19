@@ -106,3 +106,18 @@ p { color: var(--text-muted); line-height: 1.6; font-size: 1.05rem; }
   transform: translateY(-1px);
 }
 
+/* Skeleton Loading */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeleton {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+

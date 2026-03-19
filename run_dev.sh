@@ -12,21 +12,23 @@ cleanup() {
 }
 trap cleanup SIGINT SIGTERM
 
-# ================= BACKEND =================
 # O Python 3.13 e 3.14 tem conflito de compilação local no Mac com o Pydantic-core (Rust/PyO3)
 # Vamos buscar automaticamente a versão 3.12, 3.11 ou 3.10 na máquina!
 PYTHON_CMD=""
-for py in python3.12 python3.11 python3.10 python3.9; do
+for py in python3.12 python3.11 python3.10 python3.9 python3 python; do
     if command -v $py &> /dev/null; then
-        PYTHON_CMD=$py
-        break
+        # Check version only to warn, not to block
+        VER=$($py --version 2>&1)
+        if [[ "$VER" == *"Python 3"* ]]; then
+            PYTHON_CMD=$py
+            break
+        fi
     fi
 done
 
 if [ -z "$PYTHON_CMD" ]; then
-    echo "❌ Nenhuma versão compatível do Python 3 (3.9 a 3.12) foi encontrada!"
-    echo "⚠️ A sua versão instalada do Python (3.14) é nova demais e quebra o FastAPI."
-    echo "👉 Pare o script e instale o Python 3.12 rodando no terminal: brew install python@3.12"
+    echo "❌ Nenhuma versão do Python 3 foi encontrada!"
+    echo "👉 Certifique-se de que o Python está instalado e no seu PATH."
     exit 1
 fi
 
@@ -49,7 +51,14 @@ fi
 
 # Ativa o ambiente virtual
 echo "🔌 Ativando ambiente virtual do Backend..."
-source venv/bin/activate
+if [ -f "venv/Scripts/activate" ]; then
+    source venv/Scripts/activate
+elif [ -f "venv/bin/activate" ]; then
+    source venv/bin/activate
+else
+    echo "❌ Ambiente virtual (venv) não encontrado ou incompleto."
+    exit 1
+fi
 
 # Instala as dependências
 echo "📥 Instalando dependências do projeto Python..."
@@ -59,7 +68,7 @@ pip install -r backend/requirements.txt
 # Valida as tabelas do SQLite e inicia o DB
 echo "🗄️ Validando banco de dados SQLite (WAL Mode)..."
 export PYTHONPATH=$PYTHONPATH:$(pwd)
-python3 -c "from backend.database import create_db_and_tables; create_db_and_tables()"
+python3 -c "from backend.database import create_db_and_tables; create_db_and_tables()" 2>/dev/null || python -c "from backend.database import create_db_and_tables; create_db_and_tables()"
 
 # ================= FRONTEND =================
 # Instala as dependências se a pasta do front existir

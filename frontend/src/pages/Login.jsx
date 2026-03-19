@@ -68,12 +68,12 @@ function Login() {
             <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.6rem', display: 'block' }}>
               {role === 'admin' ? 'Usuário Administrativo' : 'ID do Aluno'}
             </label>
-            <input 
-              type="text" 
-              placeholder={role === 'admin' ? "admin_gracie" : "000123"} 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} 
-              required 
+            <input
+              type="text"
+              placeholder={role === 'admin' ? "admin_gracie" : "000123"}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
               style={{ width: '100%', padding: '0.85rem 1.1rem', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-light)', color: '#fff', fontSize: '1rem', outline: 'none', transition: 'var(--transition)' }}
               onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
               onBlur={(e) => e.target.style.borderColor = 'var(--border-light)'}
@@ -85,12 +85,12 @@ function Login() {
               <span>Senha</span>
               <a href="#" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>Esqueceu?</a>
             </div>
-            <input 
-              type="password" 
-              placeholder="••••••••" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
               style={{ width: '100%', padding: '0.85rem 1.1rem', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-light)', color: '#fff', fontSize: '1rem', outline: 'none', transition: 'var(--transition)' }}
               onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
               onBlur={(e) => e.target.style.borderColor = 'var(--border-light)'}
@@ -102,12 +102,14 @@ function Login() {
           </button>
         </form>
 
-        <div style={{ marginTop: '2.5rem', borderTop: '1px solid var(--border-light)', paddingTop: '1.5rem' }}>
-          <p style={{ fontSize: '0.9rem', marginBottom: '1.25rem' }}>Ainda não tem o GrrrAPP ?</p>
-          <button onClick={() => navigate('/register')} type="button" style={{ width: '100%', padding: '0.85rem', background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: 700, transition: 'var(--transition)' }} onMouseOver={(e) => e.target.style.background = 'rgba(255, 59, 48, 0.05)'} onMouseOut={(e) => e.target.style.background = 'transparent'}>
-            Quero Cadastrar Minha Academia
-          </button>
-        </div>
+        {role === 'admin' && (
+          <div style={{ marginTop: '2.5rem', borderTop: '1px solid var(--border-light)', paddingTop: '1.5rem' }}>
+            <p style={{ fontSize: '0.9rem', marginBottom: '1.25rem' }}>Ainda não tem o GrrrAPP ?</p>
+            <button onClick={() => navigate('/register')} type="button" style={{ width: '100%', padding: '0.85rem', background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: 700, transition: 'var(--transition)' }} onMouseOver={(e) => e.target.style.background = 'rgba(255, 59, 48, 0.05)'} onMouseOut={(e) => e.target.style.background = 'transparent'}>
+              Cadastre-se
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

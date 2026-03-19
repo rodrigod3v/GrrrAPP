@@ -13,7 +13,8 @@ function StudentDashboard() {
   const [history, setHistory] = useState([]);
   const [checkInMsg, setCheckInMsg] = useState('');
 
-  const todayDate = new Date().toISOString().split('T')[0];
+  const todayLocal = new Date();
+  const todayDate = `${todayLocal.getFullYear()}-${String(todayLocal.getMonth() + 1).padStart(2, '0')}-${String(todayLocal.getDate()).padStart(2, '0')}`;
 
   const fetchData = async () => {
     try {
@@ -40,10 +41,10 @@ function StudentDashboard() {
   const handleCheckIn = async (classId, modality) => {
     if (!session?.student_id || !session?.gym_id) return;
     
-    // Anti-spam: check if already done today for this modality
-    const alreadyDone = history.some(h => (h.target_date === todayDate || h.check_in_time?.startsWith(todayDate)) && h.modality === modality);
+    // Anti-spam: check if already done today for this specific class slot
+    const alreadyDone = history.some(h => (h.target_date === todayDate || h.check_in_time?.startsWith(todayDate)) && Number(h.class_id) === Number(classId));
     if (alreadyDone) {
-      setCheckInMsg(`⚠️ Você já confirmou presença em ${modality} hoje!`);
+      setCheckInMsg(`⚠️ Você já confirmou presença nesta aula hoje!`);
       setTimeout(() => setCheckInMsg(''), 3000);
       return;
     }
@@ -80,7 +81,7 @@ function StudentDashboard() {
 
   // Filter out classes that have already been checked in today OR have ended
   const activeClasses = todayClasses.filter(cls => {
-    const isConfirmed = history.some(h => (h.target_date === todayDate || h.check_in_time?.startsWith(todayDate)) && h.modality === cls.modality);
+    const isConfirmed = history.some(h => (h.target_date === todayDate || h.check_in_time?.startsWith(todayDate)) && Number(h.class_id) === Number(cls.id));
     if (isConfirmed) return false;
     
     // Also hide if the class has finished
